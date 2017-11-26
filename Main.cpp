@@ -24,7 +24,7 @@ void main() {
 		calculate.RightExpression(expression.OutputExpression());
 		calculate.TransferPolishForm();
 		calculate.SteckMoveExit();
-		cout<<calculate.CalculationsPolishForm();
+		cout<< expression.OutputExpression()<<" = "<<calculate.CalculationsPolishForm()<<endl;
 		/*if (calculate.RightExpression()) {
 			calculate.TransferPolishForm();
 			calculate.SteckMoveExit();
