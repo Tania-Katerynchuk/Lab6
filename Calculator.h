@@ -3,6 +3,12 @@
 #include <stack>
 #include <queue>
 #include <math.h>
+#include <string>
+
+//S(y = 1 - 4)(1 + y ^ 2)
+
+//M(y = 1 - 5)(1 + y * 6)
+
 
 class Calculate:public Interface {
 protected:
@@ -19,8 +25,7 @@ protected:
 public:
 	Calculate() {}
 	Calculate(string f1);
-	bool RightExpression();
-	bool ProstoNumber(int n);
+	bool RightExpression(string initialExpression);
 	void TransferPolishForm();
 	void VerifyNumber(string element);
 	void VerifyPlusMinus(string element);
@@ -29,7 +34,8 @@ public:
 	void VerifyBrackets(string element);
 	void VerifyTrigonometrix(string element);
 	void SteckMoveExit();
-	void CalculationsPolishForm();
+	double CalculationsPolishForm();
+	double Recursion(string newExpression, int start, int end, char symbol);
 
 };
 
@@ -38,7 +44,7 @@ Calculate::Calculate(string f1) {
 	initialExpression = f1;
 }
 //розділення виразу на числа і знаки, запис кожного у чергу
-bool Calculate::RightExpression() {
+bool Calculate::RightExpression(string initialExpression) {
 	for (int i = 0; i < initialExpression.size(); i++) {
 		if (initialExpression[i] >= 48 && initialExpression[i] <= 57) {
 			if (initialExpression[i + 1] >= 48 && initialExpression[i + 1] <= 57) {
@@ -46,14 +52,6 @@ bool Calculate::RightExpression() {
 			}
 			else {
 				expression.push(auxiliary.append(initialExpression, i, 1));
-				/*if (!ProstoNumber(atoi(auxiliary.c_str()))) {
-					cout << "Помилка! Введіть вираз який буде складатися тільки з простих чисел:" << endl;
-					while (!expression.empty()) {
-						expression.pop();
-					}
-					auxiliary.clear();
-					return false;
-				}*/
 				auxiliary.clear();
 			}
 		}
@@ -111,25 +109,87 @@ bool Calculate::RightExpression() {
 			auxiliary.clear();
 			i = i + 1;
 		}
+		else if (initialExpression[i] == 'S'|| initialExpression[i] == 'M') {
+			char symbol;
+			int start;
+			int end;
+			string newExpression;
+			i = i + 2;
+			bool audit = true;
+			symbol = initialExpression[i];
+			while (initialExpression[i]!=')')
+			{
+				if (initialExpression[i] >= 48 & initialExpression[i] <= 57) {
+					if (initialExpression[i + 1] >= 48 && initialExpression[i + 1] <= 57) {
+						auxiliary.append(initialExpression, i, 1);
+					}
+					else {
+						auxiliary.append(initialExpression, i, 1);
+						if (audit) {
+							start = atoi(auxiliary.c_str());
+							audit = false;
+						}
+						else {
+							end = atoi(auxiliary.c_str());
+						}
+						auxiliary.clear();
+					}
+				}
+				i++;
+			}
+			i = i + 2;
+			int nE = 0;
+			while (initialExpression[i+nE]!=')') {
+				nE++;
+			}
+			newExpression.append(initialExpression,i,nE);
+			i=i+nE+1;
+			
+			//cout << endl << newExpression << endl << "start = " << start << endl << "end = " << end << endl << "symbol = " << symbol << endl;
+			
+			
+			expression.push(to_string(Recursion(newExpression, start, end, symbol)));
+
+
+		}
 		else {
 			cout << "Помилка! Некоректне значення. ";
 			while (!expression.empty()) {
 				expression.pop();
 			}
 			InputExpression();
-			RightExpression();
+			RightExpression(initialExpression);
 		}
 	}
+	return true;
+}
+
+double Calculate::Recursion(string newExpression, int start,int end,char symbol) {
+	double resultRecursion = 0;
 	
-	return true;
+	for (; start <= end; start++) {
+		string stepExpression;
+		for (int i = 0; i < newExpression.size();i++) {
+			if (newExpression[i] == symbol) {
+				string right, left;
+				left.append(newExpression, 0, i);
+				right.append(newExpression, i+1, newExpression.size());
+				
+				stepExpression =  left+ to_string(start) +right;
+				
+				
+			}
+		}
+		RightExpression(stepExpression);
+		TransferPolishForm();
+		SteckMoveExit();
+		resultRecursion = resultRecursion + CalculationsPolishForm();
+		
+	}
+	return resultRecursion;
 }
-//перевірка чи число просте
-bool Calculate::ProstoNumber(int n) {
-	for (int i = 2; i <= sqrt(n); i++)
-		if (n % i == 0)
-			return false;
-	return true;
-}
+
+
 //перевід виразу в польський зворотній запис
 void Calculate::TransferPolishForm() {
 	for (int i = 0; i < 100; i++) {
@@ -274,7 +334,7 @@ void Calculate::SteckMoveExit() {
 	}
 }
 //обчислення польського виразу
-void Calculate::CalculationsPolishForm() {
+double Calculate::CalculationsPolishForm() {
 	double calculations = 0;
 	cout << "Польський запис виразу: ";
 	while (!exit.empty()) {
@@ -342,7 +402,9 @@ void Calculate::CalculationsPolishForm() {
 		cout << auxiliary << " ";
 		exit.pop();
 	}
+	auxiliary.clear();
+	
 	cout << endl;
 	cout << initialExpression << "=" << calculations << endl;
-	
+	return calculations;
 }

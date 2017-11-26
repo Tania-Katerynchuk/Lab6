@@ -21,10 +21,10 @@ void main() {
 	//while (right) {
 		expression.InputExpression();
 		Calculate calculate = expression.OutputExpression();
-		calculate.RightExpression();
+		calculate.RightExpression(expression.OutputExpression());
 		calculate.TransferPolishForm();
 		calculate.SteckMoveExit();
-		calculate.CalculationsPolishForm();
+		cout<<calculate.CalculationsPolishForm();
 		/*if (calculate.RightExpression()) {
 			calculate.TransferPolishForm();
 			calculate.SteckMoveExit();
