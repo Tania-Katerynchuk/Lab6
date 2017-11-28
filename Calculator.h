@@ -6,10 +6,7 @@
 #include <string>
 
 //S(y = 1 - 4)(1 + y ^ 2)
-
 //M(y = 1 - 5)(1 + y * 6)
-
-
 class Calculate :public Interface {
 protected:
 	string initialExpression;
@@ -22,6 +19,7 @@ protected:
 	int numberPow[100];
 	int numberPlMin[100];
 	int numberBrackets = 0;
+
 public:
 	Calculate() {}
 	Calculate(string f1);
@@ -36,6 +34,9 @@ public:
 	void SteckMoveExit();
 	double CalculationsPolishForm();
 	double Recursion(string newExpression, int start, int end, char symbol, char rec);
+	int RightTrigonometrix(int i, string initialExpression);
+	void RightRecursion(int i);
+	
 
 };
 
@@ -47,7 +48,7 @@ Calculate::Calculate(string f1) {
 //розділення виразу на числа і знаки, запис кожного у чергу
 bool Calculate::RightExpression(string initialExpression) {
 	for (int i = 0; i < 100; i++) {
-		numberPlMin[100];
+		numberPlMin[i]=0;
 		numberMulDiv[i] = 0;
 		numberPow[i] = 0;
 	}
@@ -65,110 +66,120 @@ bool Calculate::RightExpression(string initialExpression) {
 			expression.push(auxiliary.append(initialExpression, i, 1));
 			auxiliary.clear();
 		}
-		else if (initialExpression[i] == 'c'&&initialExpression[i + 1] == 'o'&&initialExpression[i + 2] == 's') {
-			expression.push(auxiliary.append(initialExpression, i, 3));
-			auxiliary.clear();
-			i = i + 2;
-		}
-		else if (initialExpression[i] == 's'&&initialExpression[i + 1] == 'i'&&initialExpression[i + 2] == 'n') {
-			expression.push(auxiliary.append(initialExpression, i, 3));
-			auxiliary.clear();
-			i = i + 2;
-		}
-		else if (initialExpression[i] == 't'&&initialExpression[i + 1] == 'g') {
-			expression.push(auxiliary.append(initialExpression, i, 2));
-			auxiliary.clear();
-			i = i + 1;
-		}
-		else if (initialExpression[i] == 'c'&&initialExpression[i + 1] == 't'&&initialExpression[i + 2] == 'g') {
-			expression.push(auxiliary.append(initialExpression, i, 3));
-			auxiliary.clear();
-			i = i + 2;
-		}
-		else if (initialExpression[i] == 'a'&&initialExpression[i + 1] == 's'&&initialExpression[i + 2] == 'i'&&initialExpression[i + 3] == 'n') {
-			expression.push(auxiliary.append(initialExpression, i, 4));
-			auxiliary.clear();
-			i = i + 3;
-		}
-		else if (initialExpression[i] == 'a'&&initialExpression[i + 1] == 'c'&&initialExpression[i + 2] == 'o'&&initialExpression[i + 3] == 's') {
-			expression.push(auxiliary.append(initialExpression, i, 4));
-			auxiliary.clear();
-			i = i + 3;
-		}
-		else if (initialExpression[i] == 'a'&&initialExpression[i + 1] == 't'&&initialExpression[i + 2] == 'g') {
-			expression.push(auxiliary.append(initialExpression, i, 3));
-			auxiliary.clear();
-			i = i + 2;
-		}
-		else if (initialExpression[i] == 'a'&&initialExpression[i + 1] == 'c'&&initialExpression[i + 2] == 't'&&initialExpression[i + 3] == 'g') {
-			expression.push(auxiliary.append(initialExpression, i, 4));
-			auxiliary.clear();
-			i = i + 3;
-		}
-		else if (initialExpression[i] == 'l'&&initialExpression[i + 1] == 'n') {
-			expression.push(auxiliary.append(initialExpression, i, 2));
-			auxiliary.clear();
-			i = i + 1;
-		}
-		else if (initialExpression[i] == 'l'&&initialExpression[i + 1] == 'g') {
-			expression.push(auxiliary.append(initialExpression, i, 2));
-			auxiliary.clear();
-			i = i + 1;
-		}
+
 		else if (initialExpression[i] == 'S' || initialExpression[i] == 'M') {
-			char rec = initialExpression[i];
-			char symbol;
-			int start;
-			int end;
-			string newExpression;
-			i = i + 2;
-			bool audit = true;
-			symbol = initialExpression[i];
-			while (initialExpression[i] != ')')
-			{
-				if (initialExpression[i] >= 48 & initialExpression[i] <= 57) {
-					if (initialExpression[i + 1] >= 48 && initialExpression[i + 1] <= 57) {
-						auxiliary.append(initialExpression, i, 1);
-					}
-					else {
-						auxiliary.append(initialExpression, i, 1);
-						if (audit) {
-							start = atoi(auxiliary.c_str());
-							audit = false;
-						}
-						else {
-							end = atoi(auxiliary.c_str());
-						}
-						auxiliary.clear();
-					}
-				}
-				i++;
-			}
-			i = i + 2;
-			int nE = 0;
-			while (initialExpression[i + nE] != ')') {
-				nE++;
-			}
-			newExpression.append(initialExpression, i, nE);
-			i = i + nE + 1;
-
-
-			expression.push(to_string(Recursion(newExpression, start, end, symbol, rec)));
-
-
+			RightRecursion(i);
+			return false;
 		}
 		else {
-			cout << "Помилка! Некоректне значення. ";
-			while (!expression.empty()) {
-				expression.pop();
+			int i1 = RightTrigonometrix(i, initialExpression);
+			if (i < i1) {
+				i = i1;
 			}
-			InputExpression();
-			RightExpression(initialExpression);
+			else {
+				cout << "Помилка! Некоректне значення.\n ";
+				while (!expression.empty()) {
+					expression.pop();
+				}
+				return false;
+			}
 		}
 	}
 	return true;
 }
+//Перевірка чи є в виразі тригонометричні функції 
+int Calculate::RightTrigonometrix(int i, string initialExpression) {
+	if (initialExpression[i] == 'c'&&initialExpression[i + 1] == 'o'&&initialExpression[i + 2] == 's') {
+		expression.push(auxiliary.append(initialExpression, i, 3));
+		auxiliary.clear();
+		i = i + 2;
+	}
+	else if (initialExpression[i] == 's'&&initialExpression[i + 1] == 'i'&&initialExpression[i + 2] == 'n') {
+		expression.push(auxiliary.append(initialExpression, i, 3));
+		auxiliary.clear();
+		i = i + 2;
+	}
+	else if (initialExpression[i] == 't'&&initialExpression[i + 1] == 'g') {
+		expression.push(auxiliary.append(initialExpression, i, 2));
+		auxiliary.clear();
+		i = i + 1;
+	}
+	else if (initialExpression[i] == 'c'&&initialExpression[i + 1] == 't'&&initialExpression[i + 2] == 'g') {
+		expression.push(auxiliary.append(initialExpression, i, 3));
+		auxiliary.clear();
+		i = i + 2;
+	}
+	else if (initialExpression[i] == 'a'&&initialExpression[i + 1] == 's'&&initialExpression[i + 2] == 'i'&&initialExpression[i + 3] == 'n') {
+		expression.push(auxiliary.append(initialExpression, i, 4));
+		auxiliary.clear();
+		i = i + 3;
+	}
+	else if (initialExpression[i] == 'a'&&initialExpression[i + 1] == 'c'&&initialExpression[i + 2] == 'o'&&initialExpression[i + 3] == 's') {
+		expression.push(auxiliary.append(initialExpression, i, 4));
+		auxiliary.clear();
+		i = i + 3;
+	}
+	else if (initialExpression[i] == 'a'&&initialExpression[i + 1] == 't'&&initialExpression[i + 2] == 'g') {
+		expression.push(auxiliary.append(initialExpression, i, 3));
+		auxiliary.clear();
+		i = i + 2;
+	}
+	else if (initialExpression[i] == 'a'&&initialExpression[i + 1] == 'c'&&initialExpression[i + 2] == 't'&&initialExpression[i + 3] == 'g') {
+		expression.push(auxiliary.append(initialExpression, i, 4));
+		auxiliary.clear();
+		i = i + 3;
+	}
+	else if (initialExpression[i] == 'l'&&initialExpression[i + 1] == 'n') {
+		expression.push(auxiliary.append(initialExpression, i, 2));
+		auxiliary.clear();
+		i = i + 1;
+	}
+	else if (initialExpression[i] == 'l'&&initialExpression[i + 1] == 'g') {
+		expression.push(auxiliary.append(initialExpression, i, 2));
+		auxiliary.clear();
+		i = i + 1;
+	}
+	return i;
+}
+//Підготовка до рекурсії, зчитання з якого значення по яке рахувати, перезапис вираз в нову змінну
+void Calculate::RightRecursion(int i) {
+	char rec = initialExpression[i];
+	char symbol;
+	int start;
+	int end;
+	string newExpression;
+	i = i + 2;
+	bool audit = true;
+	symbol = initialExpression[i];
+	while (initialExpression[i] != ')')
+	{
+		if (initialExpression[i] >= 48 & initialExpression[i] <= 57) {
+			if (initialExpression[i + 1] >= 48 && initialExpression[i + 1] <= 57) {
+				auxiliary.append(initialExpression, i, 1);
+			}
+			else {
+				auxiliary.append(initialExpression, i, 1);
+				if (audit) {
+					start = atoi(auxiliary.c_str());
+					audit = false;
+				}
+				else {
+					end = atoi(auxiliary.c_str());
+				}
+				auxiliary.clear();
+			}
+		}
+		i++;
+	}
+	i = i + 3;
+	int nE = 0;
+	for (; initialExpression.size() > i + nE; nE++);
+	newExpression.append(initialExpression, i - 1, nE);
+	i = i + nE + 1;
+	cout << (Recursion(newExpression, start, end, symbol, rec)) << endl;
+}
 
+//Обрахунок рекурсії
 double Calculate::Recursion(string newExpression, int start, int end, char symbol, char rec) {
 	double resultRecursion;
 	if (rec == 'S') {
@@ -186,29 +197,20 @@ double Calculate::Recursion(string newExpression, int start, int end, char symbo
 				right.append(stepExpression, i + 1, stepExpression.size());
 				stepExpression.clear();
 				stepExpression = left + to_string(start) + right;
-
-
 			}
 		}
-		cout << stepExpression << endl;
 		RightExpression(stepExpression);
-
 		TransferPolishForm();
-
 		SteckMoveExit();
-
 		if (rec == 'S') {
 			resultRecursion = resultRecursion + CalculationsPolishForm();
 		}
 		if (rec == 'M') {
 			resultRecursion = resultRecursion * CalculationsPolishForm();
 		}
-
 	}
-	
 	return resultRecursion;
 }
-
 
 	//перевід виразу в польський зворотній запис
 	void Calculate::TransferPolishForm() {
@@ -297,7 +299,7 @@ double Calculate::Recursion(string newExpression, int start, int end, char symbo
 			steck.pop();
 		}
 	}
-
+	//перевірка чи елемент черги тригонометричне значення
 	void Calculate::VerifyTrigonometrix(string element) {
 		if (element == "cos" || element == "sin" || element == "tg" || element == "ctg" || element == "acos" || element == "asin" || element == "atg" || element == "actg" || element == "ln" || element == "lg") {
 			numberBrackets++;
@@ -352,7 +354,6 @@ double Calculate::Recursion(string newExpression, int start, int end, char symbo
 	//обчислення польського виразу
 	double Calculate::CalculationsPolishForm() {
 		double calculations = 0;
-		cout << "Польський запис виразу: ";
 		while (!exit.empty()) {
 			auxiliary = exit.front();
 			if (auxiliary[0] >= 48 && auxiliary[0] <= 57) {
@@ -391,7 +392,6 @@ double Calculate::Recursion(string newExpression, int start, int end, char symbo
 				if (auxiliary == "lg") {
 					number.push(log10(element));
 				}
-
 			}
 			else {
 				double right = number.top();
@@ -415,11 +415,9 @@ double Calculate::Recursion(string newExpression, int start, int end, char symbo
 				}
 			}
 			calculations = number.top();
-			cout << auxiliary << " ";
+			
 			exit.pop();
 		}
 		auxiliary.clear();
-
-		cout << endl;
 		return calculations;
 	}
